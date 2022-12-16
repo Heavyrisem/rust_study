@@ -1,25 +1,45 @@
-extern crate rand; // ??
-
-use core::num::dec2flt::number::Number;
-use std::{io, cmp::Ordering};
 use rand::Rng;
+use std::{cmp::Ordering, io};
 
 fn main() {
+    let secret_number: u32 = rand::thread_rng().gen_range(1..101);
+    let max_try: i8 = 5;
+
     println!("Guess the number!");
 
-    let secret_number = rand::thread_rng().gen_range(1..101);
-    println!("Secret number is: {}", secret_number);
+    let mut tried = 0;
+    loop {
+        println!("Input your guess, {} try left", max_try - tried);
+        tried += 1;
 
-    println!("Input your guess.");
+        let mut guess: String = String::new();
 
-    let mut guess = integer::new();
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+        if guess.trim().eq("quit") {
+            break;
+        }
 
-    io::stdin().read_line(&mut guess).expect("Failed to read line");
-    println!("You guessed: {}", guess);
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
 
-    match guess.cmp(&secret_number) {
-        Ordering::Less => println!("Down"),
-        Ordering::Greater => println!("Up"),
-        Ordering::Equal => println!("You win")
+        println!("You guessed: {}", guess);
+
+        if max_try - tried <= 0 {
+            println!("You lose, the number was {}", secret_number);
+            break;
+        }
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Up"),
+            Ordering::Greater => println!("Down"),
+            Ordering::Equal => {
+                println!("You win");
+                break;
+            }
+        }
     }
 }
